@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
+import { usePermissions } from '../hooks/usePermissions';
 import { Plus, Briefcase, Trash2 } from 'lucide-react';
 
 export default function Projects() {
+    const { profile } = useAuth();
+    const { can } = usePermissions();
     const navigate = useNavigate();
+
     const [projects, setProjects] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState({ name: '', key: '', description: '' });
@@ -124,14 +129,16 @@ export default function Projects() {
                         <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Added: {proj.created_at?.split('T')[0]}</span>
                             <button className="btn" style={{ fontSize: '0.8rem' }} onClick={() => navigate('/bugs', { state: { projectId: proj.id } })}>View Details</button>
-                            <button
-                                className="btn"
-                                style={{ fontSize: '0.8rem', color: '#ef4444', marginLeft: '0.5rem', background: 'rgba(239, 68, 68, 0.1)' }}
-                                onClick={(e) => { e.stopPropagation(); handleDelete(proj.id, proj.name); }}
-                                title="Delete Project"
-                            >
-                                <Trash2 size={14} />
-                            </button>
+                            {can('can_delete_project') && (
+                                <button
+                                    className="btn"
+                                    style={{ fontSize: '0.8rem', color: '#ef4444', marginLeft: '0.5rem', background: 'rgba(239, 68, 68, 0.1)' }}
+                                    onClick={(e) => { e.stopPropagation(); handleDelete(proj.id, proj.name); }}
+                                    title="Delete Project"
+                                >
+                                    <Trash2 size={14} />
+                                </button>
+                            )}
                         </div>
                     </div>
                 ))}

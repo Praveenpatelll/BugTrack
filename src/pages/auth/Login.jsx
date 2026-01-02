@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
-import { Bug } from 'lucide-react';
+import { Bug, ArrowRight, Lock, Mail } from 'lucide-react';
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -27,44 +26,110 @@ export default function Login() {
     };
 
     return (
-        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f172a' }}>
-            <div className="glass card" style={{ width: '100%', maxWidth: '400px', padding: '2rem' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '2rem' }}>
-                    <div style={{ background: 'var(--primary)', padding: '0.75rem', borderRadius: '12px', marginBottom: '1rem' }}>
-                        <Bug size={32} color="white" />
+        <div className="mesh-bg" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', position: 'relative', overflow: 'hidden' }}>
+
+            {/* Ambient Background Elements */}
+            <div style={{ position: 'absolute', top: '20%', left: '20%', width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(99,102,241,0.15) 0%, rgba(0,0,0,0) 70%)', borderRadius: '50%', animation: 'float 6s ease-in-out infinite' }} />
+            <div style={{ position: 'absolute', bottom: '20%', right: '20%', width: '250px', height: '250px', background: 'radial-gradient(circle, rgba(16,185,129,0.1) 0%, rgba(0,0,0,0) 70%)', borderRadius: '50%', animation: 'float 8s ease-in-out infinite reverse' }} />
+
+            <div className="glass card animate-fade-in" style={{ width: '100%', maxWidth: '420px', padding: '2.5rem', position: 'relative', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)' }}>
+                {/* Decorative Top Line */}
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(90deg, transparent, var(--primary), transparent)' }} />
+
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '2.5rem' }}>
+                    <div style={{
+                        background: 'linear-gradient(135deg, var(--primary), #4f46e5)',
+                        padding: '1rem',
+                        borderRadius: '16px',
+                        marginBottom: '1.5rem',
+                        boxShadow: '0 10px 25px -5px rgba(99, 102, 241, 0.4)'
+                    }}>
+                        <Bug size={40} color="white" strokeWidth={1.5} />
                     </div>
-                    <h1 style={{ margin: 0, fontSize: '1.75rem' }}>Welcome Back</h1>
-                    <p style={{ color: 'var(--text-muted)' }}>Sign in to continue to BugTrack</p>
+                    <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: '700', letterSpacing: '-0.02em', background: 'linear-gradient(to right, #fff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                        Welcome Back
+                    </h1>
+                    <p style={{ color: 'var(--text-muted)', marginTop: '0.5rem', fontSize: '1rem' }}>
+                        Sign in to access your dashboard
+                    </p>
                 </div>
 
                 {error && (
-                    <div style={{ background: 'rgba(239, 68, 68, 0.2)', color: '#ef4444', padding: '0.75rem', borderRadius: '0.5rem', marginBottom: '1rem', fontSize: '0.9rem', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+                    <div style={{
+                        background: 'rgba(239, 68, 68, 0.1)',
+                        color: '#ef4444',
+                        padding: '1rem',
+                        borderRadius: '0.75rem',
+                        marginBottom: '1.5rem',
+                        fontSize: '0.9rem',
+                        border: '1px solid rgba(239, 68, 68, 0.2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem'
+                    }}>
+                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#ef4444' }} />
                         {error}
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <div>
-                        <label>Email Address</label>
-                        <input type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="you@company.com" />
-                    </div>
-                    <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
-                            <label>Password</label>
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                    <div className="input-group">
+                        <label style={{ marginLeft: '0.25rem', fontWeight: '500' }}>Email</label>
+                        <div style={{ position: 'relative' }}>
+                            <Mail size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                            <input
+                                type="email"
+                                required
+                                value={email}
+                                onChange={e => setEmail(e.target.value)}
+                                placeholder="name@company.com"
+                                style={{ paddingLeft: '2.75rem', height: '48px' }}
+                            />
                         </div>
-                        <input type="password" required value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" />
-                        <div style={{ textAlign: 'right', marginTop: '0.25rem' }}>
-                            <Link to="/forgot-password" style={{ fontSize: '0.8rem', color: 'var(--primary)', textDecoration: 'none' }}>Forgot password?</Link>
+                    </div>
+                    <div className="input-group">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                            <label style={{ marginLeft: '0.25rem', fontWeight: '500' }}>Password</label>
+                            <Link to="/forgot-password" style={{ fontSize: '0.85rem', color: 'var(--primary)', fontWeight: '600' }}>Forgot password?</Link>
+                        </div>
+                        <div style={{ position: 'relative' }}>
+                            <Lock size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                            <input
+                                type="password"
+                                required
+                                value={password}
+                                onChange={e => setPassword(e.target.value)}
+                                placeholder="Enter your password"
+                                style={{ paddingLeft: '2.75rem', height: '48px' }}
+                            />
                         </div>
                     </div>
-                    <button type="submit" className="btn btn-primary" disabled={loading} style={{ marginTop: '0.5rem' }}>
-                        {loading ? 'Signing in...' : 'Sign In'}
+
+                    <button
+                        type="submit"
+                        className="btn btn-primary"
+                        disabled={loading}
+                        style={{
+                            marginTop: '0.5rem',
+                            height: '48px',
+                            fontSize: '1rem',
+                            boxShadow: '0 4px 6px -1px rgba(99, 102, 241, 0.2)'
+                        }}
+                    >
+                        {loading ? 'Signing in...' : (
+                            <>Sign In <ArrowRight size={18} /></>
+                        )}
                     </button>
                 </form>
 
-                <p style={{ textAlign: 'center', marginTop: '1.5rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                    Don't have an account? <Link to="/signup" style={{ color: 'var(--primary)', fontWeight: 'bold' }}>Sign up</Link>
-                </p>
+                <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
+                        Don't have an account?{' '}
+                        <Link to="/signup" style={{ color: 'var(--primary)', fontWeight: '600', transition: 'color 0.2s' }}>
+                            Create account
+                        </Link>
+                    </p>
+                </div>
             </div>
         </div>
     );

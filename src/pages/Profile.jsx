@@ -68,14 +68,12 @@ export default function Profile() {
 
             // Upsert into public.users
             const payload = {
+                id: user.id, // CRITICAL: Link to Auth ID
                 email: user.email,
                 name: profile.name,
-                avatar: avatarUrl
+                avatar: avatarUrl,
+                role: profile.role || 'Developer' // Preserve role or default
             };
-
-            if (profile.id) {
-                payload.id = profile.id;
-            }
 
             const { error } = await supabase
                 .from('users')

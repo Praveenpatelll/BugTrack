@@ -98,6 +98,11 @@ a {
   display: grid;
   grid-template-columns: 250px 1fr;
   min-height: 100vh;
+  transition: grid-template-columns 0.3s ease;
+}
+
+.grid-layout.collapsed {
+  grid-template-columns: 80px 1fr;
 }
 
 .sidebar {
@@ -110,6 +115,17 @@ a {
   position: sticky;
   top: 0;
   height: 100vh;
+  transition: padding 0.3s ease;
+}
+
+.sidebar.collapsed {
+  padding: 1.5rem 0.75rem;
+  align-items: center;
+}
+
+.sidebar.collapsed .nav-item {
+  justify-content: center;
+  padding: 0.75rem 0;
 }
 
 .nav-item {
@@ -311,4 +327,133 @@ label {
 [data-theme="light"] .badge-critical {
   background: rgba(147, 51, 234, 0.15);
   color: #9333ea;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.mesh-bg {
+  background: linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #0f172a);
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+}
+
+.input-group {
+  position: relative;
+  transition: all 0.3s;
+}
+
+.input-group:focus-within label {
+  color: var(--primary);
+}
+
+.input-group input:focus {
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+/* Mobile Responsiveness */
+.mobile-header {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .grid-layout {
+    grid-template-columns: 1fr !important;
+    /* Force single column */
+  }
+
+  .grid-layout.collapsed {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Sidebar as Drawer */
+  .sidebar {
+    position: fixed;
+    left: -100%;
+    top: 0;
+    bottom: 0;
+    width: 280px;
+    z-index: 100;
+    transition: left 0.3s ease;
+    border-right: 1px solid var(--border-color);
+  }
+
+  .sidebar.mobile-open {
+    left: 0;
+  }
+
+  /* Hide toggle button on mobile if needed, or adjust pos */
+  .sidebar .btn {
+    display: none;
+    /* Hide chevron on mobile, we use close button instead */
+  }
+
+  /* Mobile Header */
+  .mobile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: var(--sidebar-bg);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .main-content {
+    padding: 1rem;
+    /* Smaller padding on mobile */
+  }
+
+  /* Overlay Backdrop */
+  .sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 90;
+    backdrop-filter: blur(2px);
+  }
 }

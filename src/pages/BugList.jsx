@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import { usePermissions } from '../hooks/usePermissions';
 import { Plus, Trash2, User, Image as ImageIcon, CheckCircle, X, ExternalLink, Edit, Eye, FileText, Video, Paperclip, Download, FileSpreadsheet } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { Document, Packer, Paragraph, Table, TableCell, TableRow, TextRun, HeadingLevel, AlignmentType, WidthType, BorderStyle } from 'docx';
@@ -18,9 +19,12 @@ const STATUS_OPTS = ['Open', 'In Progress', 'Closed'];
 
 export default function BugList() {
     const { profile } = useAuth();
+    const { can } = usePermissions();
     const location = useLocation();
     const [bugs, setBugs] = useState([]);
     const [users, setUsers] = useState([]);
+    const [assignableUsers, setAssignableUsers] = useState([]); // Users who can be assigned (Dev/Admin)
+    const [currentUserRole, setCurrentUserRole] = useState(null); // Current user's role
     const [projects, setProjects] = useState([]);
     const [filterProject, setFilterProject] = useState(location.state?.projectId || '');
     const [filterModule, setFilterModule] = useState('');
@@ -57,11 +61,23 @@ export default function BugList() {
         }
     }, [profile]);
 
+    // Fetch current user role when profile is available
+    useEffect(() => {
+        if (profile?.email) {
+            supabase.from('users').select('role').eq('email', profile.email).single()
+                .then(({ data }) => setCurrentUserRole(data?.role || 'Developer'));
+        }
+    }, [profile]);
+
     const fetchData = async () => {
         try {
             // Fetch Users
             const { data: usersData } = await supabase.from('users').select('*');
             setUsers(usersData || []);
+
+            // Filter assignable users (Admins and Developers only)
+            const devsAndAdmins = (usersData || []).filter(u => u.role !== 'Reporter' && u.role !== 'Guest');
+            setAssignableUsers(devsAndAdmins);
 
             // Fetch Projects
             const { data: projectsData } = await supabase.from('projects').select('*');
@@ -492,7 +508,7 @@ export default function BugList() {
                                     <label>Assignee</label>
                                     <select value={formData.assignee_id} onChange={e => setFormData({ ...formData, assignee_id: e.target.value })}>
                                         <option value="">Unassigned</option>
-                                        {users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+                                        {assignableUsers.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
                                     </select>
                                 </div>
                                 <div>
@@ -865,9 +881,11 @@ export default function BugList() {
                                         <button className="btn" style={{ padding: '0.25rem 0.5rem' }} onClick={() => handleEdit(bug)} title="Edit">
                                             <Edit size={16} />
                                         </button>
-                                        <button className="btn btn-danger" style={{ padding: '0.25rem 0.5rem' }} onClick={() => handleDelete(bug.id)}>
-                                            <Trash2 size={16} />
-                                        </button>
+                                        {can('can_delete_bug') && (
+                                            <button className="btn btn-danger" style={{ padding: '0.25rem 0.5rem' }} onClick={() => handleDelete(bug.id)}>
+                                                <Trash2 size={16} />
+                                            </button>
+                                        )}
                                     </div>
                                 </td>
                             </tr>
