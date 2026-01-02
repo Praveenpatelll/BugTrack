@@ -268,7 +268,7 @@ export default function BugList() {
     };
 
     const handleDelete = async (id) => {
-        // if (!confirm('Are you sure you want to delete this issue?')) return; // DISABLE FOR DEBUG
+        if (!confirm('Are you sure you want to delete this issue?')) return;
         console.log('Force Deleting BUG:', id);
         try {
             const { error } = await supabase.from('bugs').delete().eq('id', id);

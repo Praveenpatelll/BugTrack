@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Plus, Briefcase } from 'lucide-react';
+import { Plus, Briefcase, Trash2 } from 'lucide-react';
 
 export default function Projects() {
     const navigate = useNavigate();
@@ -48,6 +48,19 @@ export default function Projects() {
         } catch (err) {
             console.error('Error creating project:', err);
             alert('Error creating project');
+        }
+    };
+
+    const handleDelete = async (id, name) => {
+        if (!confirm(`Are you sure you want to delete project "${name}"?\n\nThis will permanently delete all bugs associated with this project.`)) return;
+
+        try {
+            const { error } = await supabase.from('projects').delete().eq('id', id);
+            if (error) throw error;
+            setProjects(projects.filter(p => p.id !== id));
+        } catch (err) {
+            console.error('Error deleting project:', err);
+            alert('Error deleting project: ' + err.message);
         }
     };
 
@@ -111,6 +124,14 @@ export default function Projects() {
                         <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Added: {proj.created_at?.split('T')[0]}</span>
                             <button className="btn" style={{ fontSize: '0.8rem' }} onClick={() => navigate('/bugs', { state: { projectId: proj.id } })}>View Details</button>
+                            <button
+                                className="btn"
+                                style={{ fontSize: '0.8rem', color: '#ef4444', marginLeft: '0.5rem', background: 'rgba(239, 68, 68, 0.1)' }}
+                                onClick={(e) => { e.stopPropagation(); handleDelete(proj.id, proj.name); }}
+                                title="Delete Project"
+                            >
+                                <Trash2 size={14} />
+                            </button>
                         </div>
                     </div>
                 ))}
