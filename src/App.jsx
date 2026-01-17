@@ -10,6 +10,7 @@ import ForgotPassword from './pages/auth/ForgotPassword';
 import Profile from './pages/Profile';
 import Team from './pages/Team';
 import Settings from './pages/Settings';
+import LoadTest from './pages/LoadTest';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { isConfigured } from './lib/supabase';
 import Sidebar from './components/Sidebar';
@@ -97,6 +98,7 @@ export default function App() {
           <Route path="/users" element={<RequireAuth><Team /></RequireAuth>} />
           <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
           <Route path="/settings" element={<RequireAuth><Settings /></RequireAuth>} />
+          <Route path="/load-test" element={<RequireAuth><LoadTest /></RequireAuth>} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

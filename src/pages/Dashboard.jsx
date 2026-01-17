@@ -66,9 +66,17 @@ export default function Dashboard() {
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem' }}>
                 <div className="glass card">
                     <h3 style={{ marginTop: 0 }}>System Health</h3>
-                    <div style={{ height: '200px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
-                        <Activity size={48} style={{ opacity: 0.5, marginBottom: '1rem' }} />
-                        <p>Real-time chart visualization coming soon.</p>
+                    <div style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', borderRadius: '8px', overflow: 'hidden' }}>
+                        <img
+                            src="/images/dashboard-chart.png"
+                            alt="Dashboard Visualization"
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'contain',
+                                opacity: 0.9
+                            }}
+                        />
                     </div>
                 </div>
                 <div className="glass card">

@@ -456,4 +456,101 @@ label {
     z-index: 90;
     backdrop-filter: blur(2px);
   }
+
+  /* Login Page Mobile Responsiveness */
+  .login-container {
+    grid-template-columns: 1fr !important;
+    margin: 1rem !important;
+  }
+
+  .hero-image-container {
+    display: none !important;
+  }
+}
+
+/* Image loading transition */
+@keyframes imageLoad {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+img {
+  animation: imageLoad 0.6s ease-out;
+}
+
+/* ========================================= */
+/* Responsive Utilities (Mobile Improvement) */
+/* ========================================= */
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.page-title-group h1 {
+  margin-bottom: 0.5rem;
+  font-size: 1.8rem;
+}
+
+.page-title-group p {
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.responsive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.search-container {
+  position: relative;
+  margin-bottom: 1.5rem;
+  width: 100%;
+}
+
+.search-input {
+  padding-left: 2.5rem;
+  width: 100%;
+  max-width: 400px;
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .page-header .btn {
+    width: 100%;
+  }
+
+  .nav-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 5px;
+    /* Scrollbar space */
+    width: 100%;
+  }
+
+  /* Make modal full width/height on mobile or just centered better */
+  .modal-content {
+    width: 95% !important;
+    max-width: none !important;
+  }
+
+  .search-input {
+    max-width: 100%;
+  }
 }

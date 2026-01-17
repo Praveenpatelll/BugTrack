@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Bug, Settings as SettingsIcon, Users, Briefcase, User, LogOut, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { LayoutDashboard, Bug, Settings as SettingsIcon, Users, Briefcase, User, LogOut, ChevronLeft, ChevronRight, X, Activity } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Sidebar({ isCollapsed, onToggle, mobileOpen, onMobileClose }) {
@@ -71,6 +71,10 @@ export default function Sidebar({ isCollapsed, onToggle, mobileOpen, onMobileClo
                 <NavLink to="/users" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} title={isCollapsed ? "Team" : ""}>
                     <Users size={20} />
                     {!isCollapsed && <span>Team</span>}
+                </NavLink>
+                <NavLink to="/load-test" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} title={isCollapsed ? "Load Test" : ""}>
+                    <Activity size={20} />
+                    {!isCollapsed && <span>Load Test</span>}
                 </NavLink>
             </div>
 
