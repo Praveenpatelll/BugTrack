@@ -1,7 +1,7 @@
 -- Create table to track status changes
 CREATE TABLE IF NOT EXISTS public.bug_history (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    bug_id UUID REFERENCES public.bugs(id) ON DELETE CASCADE,
+    bug_id BIGINT REFERENCES public.bugs(id) ON DELETE CASCADE,
     changed_by UUID REFERENCES public.users(id),
     old_status TEXT,
     new_status TEXT,
