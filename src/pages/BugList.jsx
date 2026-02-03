@@ -37,6 +37,7 @@ export default function BugList() {
     const [editingId, setEditingId] = useState(null);
     const [deletingAttachmentId, setDeletingAttachmentId] = useState(null);
     const [viewBug, setViewBug] = useState(null);
+    const [bugHistory, setBugHistory] = useState([]); // New state for history
     const [zoomedImage, setZoomedImage] = useState(null);
 
     const [formData, setFormData] = useState({
@@ -297,17 +298,56 @@ export default function BugList() {
     };
 
     const handleStatusChange = async (id, newStatus) => {
+        const bug = bugs.find(b => b.id === id);
+        const oldStatus = bug?.status;
+
         // Optimistic update
         setBugs(bugs.map(b => b.id === id ? { ...b, status: newStatus } : b));
+
         try {
+            // 1. Update Bug Status
             const { error } = await supabase.from('bugs').update({ status: newStatus }).eq('id', id);
             if (error) throw error;
+
+            // 2. Log History
+            if (profile?.id) {
+                const { error: historyError } = await supabase.from('bug_history').insert({
+                    bug_id: id,
+                    changed_by: profile.id,
+                    old_status: oldStatus,
+                    new_status: newStatus
+                });
+                if (historyError) console.error('Error logging history:', historyError);
+            }
+
         } catch (err) {
             console.error(err);
             fetchData(); // Revert on error
             alert('Error updating status');
         }
     };
+
+    // Fetch history when viewing a bug
+    useEffect(() => {
+        if (viewBug?.id) {
+            const fetchHistory = async () => {
+                const { data, error } = await supabase
+                    .from('bug_history')
+                    .select(`
+                        *,
+                        changer:users!changed_by(name, avatar)
+                    `)
+                    .eq('bug_id', viewBug.id)
+                    .order('changed_at', { ascending: false });
+
+                if (error) console.error('Error fetching history:', error);
+                else setBugHistory(data || []);
+            };
+            fetchHistory();
+        } else {
+            setBugHistory([]);
+        }
+    }, [viewBug]);
 
     const handleEdit = (bug) => {
         setEditingId(bug.id);
@@ -794,6 +834,36 @@ export default function BugList() {
                                     <div style={{ marginTop: '1rem' }}>
                                         <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Module</label>
                                         <span>{viewBug.module || 'General'}</span>
+                                    </div>
+                                </div>
+
+                                {/* History Section */}
+                                <div className="card" style={{ background: 'rgba(255,255,255,0.03)' }}>
+                                    <h4 style={{ margin: '0 0 1rem 0', fontSize: '1rem', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+                                        Status History
+                                    </h4>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: '200px', overflowY: 'auto' }}>
+                                        {bugHistory.length > 0 ? (
+                                            bugHistory.map(h => (
+                                                <div key={h.id} style={{ fontSize: '0.85rem', display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+                                                    <div style={{ marginTop: '0.2rem', minWidth: '8px', height: '8px', borderRadius: '50%', background: 'var(--border-color)' }} />
+                                                    <div>
+                                                        <div style={{ fontWeight: '500' }}>
+                                                            <span style={{ color: 'var(--text-muted)' }}>{h.old_status}</span>
+                                                            {' → '}
+                                                            <span style={{ color: 'var(--primary)' }}>{h.new_status}</span>
+                                                        </div>
+                                                        <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                                                            {h.changer?.name || 'Unknown'} • {new Date(h.changed_at).toLocaleString()}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div style={{ color: 'var(--text-muted)', fontStyle: 'italic', fontSize: '0.85rem' }}>
+                                                No history recorded yet.
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
