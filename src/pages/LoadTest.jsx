@@ -19,6 +19,10 @@ export default function LoadTest() {
     const [reports, setReports] = useState([]);
     const [chartData, setChartData] = useState([]);
 
+    const [method, setMethod] = useState('GET');
+    const [headers, setHeaders] = useState('{}');
+    const [body, setBody] = useState('{}');
+
     // Pro features
     const [useProMode, setUseProMode] = useState(false);
     const [threads, setThreads] = useState(5);
@@ -33,7 +37,8 @@ export default function LoadTest() {
 
         // Open SSE connection to the Inventory System Backend
         // NOTE: This assumes the backend is running on port 3000
-        const eventSource = new EventSource(`http://localhost:3000/loadtest/events`);
+        const videoApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+        const eventSource = new EventSource(`${videoApiUrl}/loadtest/events`);
 
         eventSource.onmessage = (event) => {
             const data = JSON.parse(event.data);
@@ -42,7 +47,7 @@ export default function LoadTest() {
             } else if (data.type === 'report') {
                 setReports(data.data);
                 // Append to chart data for "Main Page" or aggregate
-                const mainStat = data.data.find((r) => r.label === 'Main Page');
+                const mainStat = data.data.find((r) => r.label === 'Main Interaction');
                 if (mainStat) {
                     setChartData(prev => [...prev, {
                         time: new Date().toLocaleTimeString(),
@@ -59,10 +64,19 @@ export default function LoadTest() {
 
         // Trigger start
         try {
-            await axios.post('http://localhost:3000/loadtest/start', {
+            let parsedHeaders = {};
+            let parsedBody = null;
+            try { parsedHeaders = JSON.parse(headers); } catch (e) { console.warn('Invalid headers JSON'); }
+            try { parsedBody = JSON.parse(body); } catch (e) { console.warn('Invalid body JSON'); }
+
+            const videoApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+            await axios.post(`${videoApiUrl}/loadtest/start`, {
                 url,
                 threads: useProMode ? threads : 5,
-                duration: useProMode ? duration : 10
+                duration: useProMode ? duration : 10,
+                method: useProMode ? method : 'GET',
+                headers: useProMode ? parsedHeaders : {},
+                body: useProMode ? parsedBody : null
             });
         } catch (e) {
             console.error(e);
@@ -90,9 +104,29 @@ export default function LoadTest() {
                 </div>
 
                 <div className="flex flex-col md:flex-row gap-4" style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                    <select
+                        value={method}
+                        onChange={(e) => setMethod(e.target.value)}
+                        disabled={!useProMode || isRunning}
+                        style={{
+                            padding: '12px',
+                            borderRadius: '8px',
+                            border: '1px solid #475569',
+                            background: '#0f172a',
+                            color: 'white',
+                            fontWeight: 'bold',
+                            display: useProMode ? 'block' : 'none'
+                        }}
+                    >
+                        <option value="GET">GET</option>
+                        <option value="POST">POST</option>
+                        <option value="PUT">PUT</option>
+                        <option value="DELETE">DELETE</option>
+                    </select>
+
                     <input
                         type="text"
-                        placeholder="Paste Target URL (e.g., https://example.com)"
+                        placeholder="Paste Target URL (e.g., https://example.com/api/login)"
                         style={{
                             flex: 1,
                             padding: '12px 16px',
@@ -140,24 +174,48 @@ export default function LoadTest() {
                     </button>
 
                     {useProMode && (
-                        <div style={{ marginTop: '12px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', padding: '16px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
-                            <div>
-                                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#94a3b8', marginBottom: '4px' }}>Virtual Users (Threads)</label>
-                                <input
-                                    type="number"
-                                    value={threads}
-                                    onChange={e => setThreads(Number(e.target.value))}
-                                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #475569', background: '#0f172a', color: 'white' }}
-                                />
+                        <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '16px', padding: '16px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#94a3b8', marginBottom: '4px' }}>Virtual Users (Threads)</label>
+                                    <input
+                                        type="number"
+                                        value={threads}
+                                        onChange={e => setThreads(Number(e.target.value))}
+                                        style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #475569', background: '#0f172a', color: 'white' }}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#94a3b8', marginBottom: '4px' }}>Duration (Seconds)</label>
+                                    <input
+                                        type="number"
+                                        value={duration}
+                                        onChange={e => setDuration(Number(e.target.value))}
+                                        style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #475569', background: '#0f172a', color: 'white' }}
+                                    />
+                                </div>
                             </div>
-                            <div>
-                                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#94a3b8', marginBottom: '4px' }}>Duration (Seconds)</label>
-                                <input
-                                    type="number"
-                                    value={duration}
-                                    onChange={e => setDuration(Number(e.target.value))}
-                                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #475569', background: '#0f172a', color: 'white' }}
-                                />
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#94a3b8', marginBottom: '4px' }}>Request Headers (JSON)</label>
+                                    <textarea
+                                        value={headers}
+                                        onChange={e => setHeaders(e.target.value)}
+                                        placeholder={'{\n  "Authorization": "Bearer token"\n}'}
+                                        style={{ width: '100%', height: '100px', padding: '8px', borderRadius: '4px', border: '1px solid #475569', background: '#0f172a', color: 'white', fontFamily: 'monospace' }}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#94a3b8', marginBottom: '4px' }}>Request Body (JSON)</label>
+                                    <textarea
+                                        value={body}
+                                        onChange={e => setBody(e.target.value)}
+                                        placeholder={'{\n  "email": "admin@example.com",\n  "password": "123"\n}'}
+                                        style={{ width: '100%', height: '100px', padding: '8px', borderRadius: '4px', border: '1px solid #475569', background: '#0f172a', color: 'white', fontFamily: 'monospace' }}
+                                        disabled={method === 'GET' || method === 'DELETE'}
+                                    />
+                                </div>
                             </div>
                         </div>
                     )}

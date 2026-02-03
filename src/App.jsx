@@ -77,6 +77,47 @@ const RequireAuth = ({ children }) => {
   );
 };
 
+const SetupRequired = () => (
+  <div style={{
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: '#0f172a',
+    color: 'white',
+    padding: '2rem',
+    textAlign: 'center',
+    fontFamily: 'system-ui, sans-serif'
+  }}>
+    <div style={{ marginBottom: '2rem', background: '#334155', padding: '1rem', borderRadius: '50%' }}>
+      <Bug size={48} color="#f87171" />
+    </div>
+    <h1 style={{ fontSize: '2rem', marginBottom: '1rem', fontWeight: 'bold' }}>Configuration Required</h1>
+    <p style={{ maxWidth: '600px', lineHeight: '1.6', color: '#94a3b8', marginBottom: '2rem' }}>
+      The application could not start because it is missing the required Supabase configuration.
+      <br />
+      If you are the developer, please ensure the following environment variables are set:
+    </p>
+    <div style={{
+      background: '#1e293b',
+      padding: '1.5rem',
+      borderRadius: '8px',
+      textAlign: 'left',
+      width: '100%',
+      maxWidth: '500px',
+      border: '1px solid #475569',
+      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+    }}>
+      <code style={{ display: 'block', color: '#38bdf8', marginBottom: '0.5rem', fontFamily: 'monospace' }}>VITE_SUPABASE_URL</code>
+      <code style={{ display: 'block', color: '#38bdf8', fontFamily: 'monospace' }}>VITE_SUPABASE_ANON_KEY</code>
+    </div>
+    <p style={{ marginTop: '2rem', fontSize: '0.875rem', color: '#64748b' }}>
+      Check your <code style={{ color: '#cbd5e1' }}>.env</code> file locally or your Deployment Settings (Netlify/Vercel).
+    </p>
+  </div>
+);
+
 export default function App() {
   if (!isConfigured) {
     return <SetupRequired />;
